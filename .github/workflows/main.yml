@@ -42,6 +42,11 @@ jobs:
           mkdir -p preview
           pdftoppm -png main.pdf preview/main
           tree -if preview | grep .png > preview.txt
+          cd preview
+          git init
+          git add .
+          git commit --quiet -m "PDF Preview"
+          git push --force --quiet "https://nmcardoso:${{secrets.GITHUB_TOKEN}}@github.com/${GITHUB_REPOSITORY}.git" master:preview
       - name: Undo release
         uses: ame-yu/action-delete-latest-release@v2
         env:
