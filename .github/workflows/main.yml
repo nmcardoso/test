@@ -43,6 +43,8 @@ jobs:
           pdftoppm -png main.pdf preview/main
           tree -if preview | grep .png > preview.txt
           cd preview
+          git config --global user.email "actions@github.com"
+          git config --global user.name "Github Actions"
           git init
           git add .
           git commit --quiet -m "PDF Preview"
