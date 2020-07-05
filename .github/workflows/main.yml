@@ -26,7 +26,6 @@ jobs:
           release_name: ${{steps.release_tag.outputs.tag}}
           draft: false
           prerelease: false
-        run: echo "::set-output name=exit_code::$?"
       - name: Upload release assets
         id: release_assets
         uses: actions/upload-release-asset@v1
@@ -37,8 +36,14 @@ jobs:
           asset_path: ./main.pdf
           asset_name: main.pdf
           asset_content_type: application/pdf
+      - name: Create previews
+        run: |
+          sudo apt install -y poppler-utils tree
+          mkdir -p preview
+          pdftoppm -png main.pdf preview/main
+          tree -if preview | grep .png > preview.txt
       - name: Undo release
         uses: ame-yu/action-delete-latest-release@v2
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        if: ${{steps.create_release.outputs.exit_code == 0 && !success()}}
+        if: ${{steps.create_release.conclusion == 'success' && !success()}}
