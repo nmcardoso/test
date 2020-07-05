@@ -1,0 +1,38 @@
+name: Test
+on: push
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup git repo
+        uses: actions/checkout@v2
+      - name: Compile Latex
+        uses: xu-cheng/latex-action
+        with:
+          root_file: main.tex
+      - name: Get latest release
+        id: release_tag
+        run: |
+          sudo apt install -y jq
+          latest_release=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/releases?per_page=1" | jq -r .[0].tag_name)
+          echo "::set-output name=tag::v$(bc <<< "$(cut -c2- <<< $latest_release) + 1")"
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env: 
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: ${{steps.release_tag.outputs.tag}}
+          release_name: ${{steps.release_tag.outputs.tag}}
+          draft: false
+          prerelease: false
+      - name: Upload release assets
+        id: release_assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: ./mian.pdf
+          asset_name: main.pdf
+          asset_content_type: application/pdf
