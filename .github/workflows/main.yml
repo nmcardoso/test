@@ -7,7 +7,7 @@ jobs:
       - name: Setup git repo
         uses: actions/checkout@v2
       - name: Compile Latex
-        uses: xu-cheng/latex-action
+        uses: xu-cheng/latex-action@v2
         with:
           root_file: main.tex
       - name: Get latest release
